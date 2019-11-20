@@ -1,7 +1,14 @@
 const Order = require("../models/order");
 
 async function addOrder(req, res) {
-  const order = new Order({});
+  const order = new Order({
+    orderStatus: "processing",
+    orderTotalPrice: "123",
+    payStatus: "Paid",
+    receiverAddress: "12 qwee St",
+    receiverName: "James",
+    receiverPhone: "0404380038"
+  });
   await order.save();
   return res.json(order);
 }

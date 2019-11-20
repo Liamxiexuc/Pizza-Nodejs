@@ -35,6 +35,10 @@ const schema = new mongoose.Schema(
     receiverPhone: {
       type: String,
       require: true
+    },
+    __v: {
+      type: Number,
+      select: false
     }
   },
   {
