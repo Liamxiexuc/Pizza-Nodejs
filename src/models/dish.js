@@ -34,7 +34,11 @@ const schema = new mongoose.Schema(
         category: {
             type: String,
             require: true
-        }
+        },
+        __v: {
+            type: Number,
+            select:false
+        },
 
     }
 );

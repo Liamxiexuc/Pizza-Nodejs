@@ -1,4 +1,21 @@
-function addDish(req, res) {}
+const Dish = require("../models/dish");
+
+async function addDish(req, res) {
+    const {
+        productName,
+        price,
+        productType,
+        productInfo,
+        productionDiscount,
+        photo,
+        category
+    } = req.body;
+
+    const existDish = await Dish.findById(id);
+    if(existDish) {
+        
+    }
+}
 
 function getDish(req, res) {}
 
