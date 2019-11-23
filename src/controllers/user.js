@@ -16,6 +16,8 @@ async function addUser(req, res) {
     firstName,
     lastName,
     email,
+    password,
+    orders,
     title,
     gender,
     phone,
@@ -49,12 +51,16 @@ async function updateUser(req, res) {
     firstName,
     lastName,
     email,
+    password,
+    orders,
     title,
     gender,
     phone,
     birthDay,
     address
   } = req.body;
+
+  /* The method below can not do validation when update data.
   const newUser = await User.findByIdAndUpdate(
     id,
     { firstName, lastName, email, title, gender, phone, birthDay, address },
@@ -62,10 +68,28 @@ async function updateUser(req, res) {
       new: true
     }
   );
+  */
 
-  if (!newUser) {
+  const user = await User.findById(id);
+  if (!user) {
     return res.status(404).json("user not found");
   }
+
+  const newUser = {
+    ...user,
+    firstName,
+    lastName,
+    email,
+    password,
+    orders,
+    title,
+    gender,
+    phone,
+    birthDay,
+    address
+  };
+
+  await newUser.save();
 
   return res.json(newUser);
 }
