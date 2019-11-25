@@ -6,6 +6,8 @@ async function addUser(req, res) {
     firstName,
     lastName,
     email,
+    password,
+    orders,
     title,
     gender,
     phone,
@@ -75,7 +77,7 @@ async function updateUser(req, res) {
     return res.status(404).json("user not found");
   }
 
-  const newUser = {
+  user.overwrite({
     ...user,
     firstName,
     lastName,
@@ -87,11 +89,10 @@ async function updateUser(req, res) {
     phone,
     birthDay,
     address
-  };
+  });
+  await user.save();
 
-  await newUser.save();
-
-  return res.json(newUser);
+  return res.json(user);
 }
 
 async function deleteUser(req, res) {

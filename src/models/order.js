@@ -45,9 +45,9 @@ const schema = new mongoose.Schema(
       ref: "User",
       require: true
     }
-    orders: [
+/*    orders: [
       {type: String, ref: 'Dish'}
-    ]
+    ]  */
   },
   {
     timestamps: true

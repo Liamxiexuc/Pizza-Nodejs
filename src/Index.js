@@ -6,7 +6,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const routes = require("./routes");
 const { connectToDB } = require("./utils/db");
-const { errorHandler } = require("./middleware/errorHandler");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
