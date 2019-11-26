@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Joi = require("@hapi/joi");
 
 const schema = new mongoose.Schema(
   {
@@ -10,6 +11,32 @@ const schema = new mongoose.Schema(
       type: String,
       require: true
     },
+    email: {
+      type: String,
+      require: true,
+      validate: {
+        validator: email =>
+          !Joi.string()
+            .email()
+            .validate(email).error,
+        msg: "Invalid email format"
+      }
+    },
+    password: {
+      type: String,
+      require: true,
+      validate: {
+        validator: password =>
+          !Joi.string()
+            .pattern(
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@&%#_])[a-zA-Z0-9~!@&%#_]{8,16}$/
+            )
+            .validate(password).error,
+        msg: "Invalid password format"
+      }
+    },
+    orders: [{ type: String, ref: "Order" }],
+
     title: {
       type: String,
       require: true

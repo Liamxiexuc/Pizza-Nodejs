@@ -39,7 +39,15 @@ const schema = new mongoose.Schema(
     __v: {
       type: Number,
       select: false
+    },
+    user: {
+      type: String,
+      ref: "User",
+      require: true
     }
+/*    orders: [
+      {type: String, ref: 'Dish'}
+    ]  */
   },
   {
     timestamps: true
