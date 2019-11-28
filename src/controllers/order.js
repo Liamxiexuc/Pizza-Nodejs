@@ -1,4 +1,5 @@
 const Order = require("../models/order");
+const User = require('../models/user');
 
 async function addOrder(req, res) {
   const {
@@ -25,7 +26,9 @@ async function addOrder(req, res) {
 async function getOrder(req, res) {
   const { id } = req.params;
 
-  const order = await Order.findById(id);
+  const order = await Order.findById(id)
+    .populate("user", "firstName lastName")
+    .exec();
 
   if (!order) {
     return res.status(404).json("order not found");
@@ -35,7 +38,7 @@ async function getOrder(req, res) {
 }
 
 async function getAllOrders(req, res) {
-  const orders = await Order.find();
+  const orders = await Order.find().exec();
   return res.json(orders);
 }
 
@@ -64,7 +67,7 @@ async function updateOrder(req, res) {
     {
       new: true
     }
-  );
+  ).exec();
 
   if (!newOrder) {
     return res.status(404).json("order not found");
@@ -76,11 +79,20 @@ async function updateOrder(req, res) {
 async function deleteOrder(req, res) {
   const { id } = req.params;
 
-  const order = await Order.findByIdAndDelete(id);
+  const order = await Order.findByIdAndDelete(id).exec();
 
   if (!order) {
     return res.status(404).json("order not found");
   }
+
+  await User.updateMany(
+    {
+      _id: { $in: order.user }
+    },
+    {
+      $pull: { orders: order._id }
+    }
+  ).exec();
   return res.sendStatus(200);
 }
 
