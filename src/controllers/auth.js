@@ -13,11 +13,10 @@ async function loginUser(req, res) {
   if (!(await existingUser.validatePassword(password))) {
     return res.status(400).json("Invalid email or password");
   }
-  const token = generateToken(existingUser._id);
+  const token = generateToken(existingUser._id, existingUser.userType);
 
   return res.json({ email, token });
 }
-
 
 module.exports = {
   loginUser

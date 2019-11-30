@@ -8,9 +8,10 @@ const schema = new mongoose.Schema(
       alias: "order number"
     },
 */
-    user: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
+      require: true
     },
     orderStatus: {
       type: String,
@@ -44,14 +45,7 @@ const schema = new mongoose.Schema(
       type: Number,
       select: false
     },
-    user: {
-      type: String,
-      ref: "User",
-      require: true
-    }
-    /*    orders: [
-      {type: String, ref: 'Dish'}
-    ]  */
+    dishes: [{ type: String, ref: "Dish" }]
   },
   {
     timestamps: true

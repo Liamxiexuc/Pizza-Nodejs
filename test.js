@@ -7,6 +7,8 @@ const validation = Joi.string()
 
   return validation;
 }
+const validation = require("./src/middleware/validation");
+
 /*
 if (!validation) {
   return false;

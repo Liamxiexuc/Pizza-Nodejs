@@ -44,7 +44,7 @@ async function addUser(req, res) {
 
   await user.hashPassword();
   await user.save();
-  const token = generateToken(user._id);
+  const token = generateToken(user._id, user.userType);
   return res.json({ email, token });
 }
 
@@ -177,6 +177,13 @@ async function deleteOrder(req, res) {
   return res.json(user);
 }
 
+ //GET /api/users/:id/orders
+async function getAllOrdersByUserId(req, res) {
+  const { userId } = req.params;
+  const orders = await Order.find({ userId }).exec();
+  return res.json(orders);
+}
+
 module.exports = {
   addUser,
   getUser,
@@ -184,5 +191,6 @@ module.exports = {
   updateUser,
   deleteUser,
   addOrder,
-  deleteOrder
+  deleteOrder,
+  getAllOrdersByUserId
 };

@@ -6,16 +6,18 @@ const {
   updateUser,
   deleteUser,
   addOrder,
-  deleteOrder
+  deleteOrder,
+  getAllOrdersByUserId
 } = require("../controllers/user");
+const adminGuard = require("../middleware/adminGuard");
 const router = express.Router();
 
-router.get("/", getAllUsers);
+router.get("/", adminGuard, getAllUsers);
 router.get("/:id", getUser);
 router.post("/", addUser);
 router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+router.delete("/:id", adminGuard, deleteUser);
 router.post("/:id/orders/:orderId", addOrder);
 router.delete("/:id/orders/:orderId", deleteOrder);
-
+router.get("/:id/orders", getAllOrdersByUserId);
 module.exports = router;
