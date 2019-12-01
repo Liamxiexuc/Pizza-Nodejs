@@ -5,19 +5,18 @@ const {
   getAllUsers,
   updateUser,
   deleteUser,
-  addOrder,
-  deleteOrder,
-  getAllOrdersByUserId
+  getAllOrdersByUserId,
+  updateUserType
 } = require("../controllers/user");
 const adminGuard = require("../middleware/adminGuard");
+const authGuard = require("../middleware/authGuard");
 const router = express.Router();
 
-router.get("/", adminGuard, getAllUsers);
-router.get("/:id", getUser);
+router.get("/", authGuard, adminGuard, getAllUsers);
+router.get("/:id", authGuard, getUser);
 router.post("/", addUser);
-router.put("/:id", updateUser);
-router.delete("/:id", adminGuard, deleteUser);
-router.post("/:id/orders/:orderId", addOrder);
-router.delete("/:id/orders/:orderId", deleteOrder);
-router.get("/:id/orders", getAllOrdersByUserId);
+router.put("/:id",authGuard, updateUser);
+router.delete("/:id", authGuard, adminGuard, deleteUser);
+router.get("/:id/orders", authGuard, getAllOrdersByUserId);
+router.put("/:id/userType", authGuard, adminGuard, updateUserType);
 module.exports = router;

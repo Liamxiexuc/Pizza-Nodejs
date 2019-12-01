@@ -24,7 +24,7 @@ async function addUser(req, res) {
   }
   // password format validation
   const validatePassword = validation(password);
-  if (!validatePassword) {
+  if (validatePassword.error) {
     return res.status(400).json("Invalid password format");
   }
 
@@ -52,7 +52,7 @@ async function getUser(req, res) {
   const { id } = req.params;
 
   const user = await User.findById(id)
-    .populate("orders", "orderStatus orderTotalPrice")
+    .populate("orders", "orderStatus orderTotalPrice dishes")
     .exec();
 
   if (!user) {
@@ -63,7 +63,9 @@ async function getUser(req, res) {
 }
 
 async function getAllUsers(req, res) {
-  const users = await User.find().exec();
+  const users = await User.find()
+    .populate("orders", "orderStatus orderTotalPrice dishes")
+    .exec();
   return res.json(users);
 }
 
@@ -79,8 +81,7 @@ async function updateUser(req, res) {
     gender,
     phone,
     birthDay,
-    address,
-    userType
+    address
   } = req.body;
 
   /* The method below can not do validation when update data.
@@ -119,8 +120,7 @@ async function updateUser(req, res) {
     gender,
     phone,
     birthDay,
-    address,
-    userType
+    address
   });
   await user.save();
 
@@ -136,50 +136,34 @@ async function deleteUser(req, res) {
     return res.status(404).json("user not found");
   }
   //delete all orders
-  await Order.deleteMany({ user: user._id });
+  await Order.deleteMany({ userId: user._id });
   return res.sendStatus(200);
 }
 
-// POST /api/users/:id/orders/:orderID
-async function addOrder(req, res) {
-  const { id, orderId } = req.params;
-
+// PUT /api/users/:id/userType
+async function updateUserType(req, res) {
+  const { id } = req.params;
+  const { userType } = req.body;
   const user = await User.findById(id).exec();
-  const order = await Order.findById(orderId).exec();
-  if (!user || !order) {
-    return res.status(404).json("user or order not found");
+  if (!user) {
+    return res.status(404).json("user not found");
   }
-  user.orders.addToSet(order._id);
-  order.user = user;
-  await user.save();
-  await order.save();
-  //并发存储
-  // async.parallel([ user.save(), order.save() ]);
+  const newUserType = await User.findByIdAndUpdate(
+    id,
+    {
+      userType
+    },
+    {
+      new: true
+    }
+  ).exec();
 
-  return res.json(user);
+  return res.json(newUserType);
 }
 
-async function deleteOrder(req, res) {
-  const { id, orderId } = req.params;
-
-  const user = await User.findById(id).exec();
-  const order = await Order.findById(orderId).exec();
-  if (!user || !order) {
-    return res.status(404).json("user or order not found");
-  }
-  const oldCount = user.orders.length;
-  user.orders.pull(order._id);
-  if (user.orders.length === oldCount) {
-    return res.status(404).json("The order does not exist");
-  }
-  await user.save();
-  await Order.findByIdAndDelete(orderId).exec();
-  return res.json(user);
-}
-
- //GET /api/users/:id/orders
+//GET /api/users/:id/orders
 async function getAllOrdersByUserId(req, res) {
-  const { userId } = req.params;
+  const { id: userId } = req.params;
   const orders = await Order.find({ userId }).exec();
   return res.json(orders);
 }
@@ -190,7 +174,6 @@ module.exports = {
   getAllUsers,
   updateUser,
   deleteUser,
-  addOrder,
-  deleteOrder,
-  getAllOrdersByUserId
+  getAllOrdersByUserId,
+  updateUserType
 };

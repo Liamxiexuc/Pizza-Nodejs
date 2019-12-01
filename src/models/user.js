@@ -52,6 +52,7 @@ const schema = new mongoose.Schema(
     },
     userType: {
       type: String,
+      default: 1,
       require: true
     },
     __v: {

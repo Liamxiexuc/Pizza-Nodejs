@@ -10,13 +10,11 @@ async function addDish(req, res) {
     photo,
     category
   } = req.body;
-/*
-  const existDish = await Dish.find({ "productName": productName });
-  console.log(existDish);
+  // dishName check
+  const existDish = await Dish.find({ productName });
   if (existDish) {
     return res.status(400).json("dish exist");
   }
-*/
 
   const dish = new Dish({
     productName,
@@ -33,7 +31,7 @@ async function addDish(req, res) {
 async function getDish(req, res) {
   const { id } = req.params;
 
-  const dish = await Dish.findById(id);
+  const dish = await Dish.findById(id).exec();
   if (!dish) {
     return res.status(404).json("dish not found");
   }
@@ -41,8 +39,8 @@ async function getDish(req, res) {
 }
 
 async function getAllDishes(req, res) {
-  const dishs = await Dish.find();
-  return res.json(dishs);
+  const dishes = await Dish.find().exec();
+  return res.json(dishes);
 }
 
 async function updateDish(req, res) {
@@ -70,7 +68,7 @@ async function updateDish(req, res) {
     {
       new: true
     }
-  );
+  ).exec();
 
   if (!newDish) {
     return res.status(404).json("dish not found");
@@ -78,18 +76,15 @@ async function updateDish(req, res) {
 
   return res.json(newDish);
 }
-
+//delete item doesn't need delete item in orders;
 async function deleteDish(req, res) {
   const { id } = req.params;
-  const dish = await Dish.findByIdAndDelete(id);
+  const dish = await Dish.findByIdAndDelete(id).exec();
 
   if (!dish) {
     return res.status(404).json("dish not found");
   }
-  await Order.updateMany(
-    { _id: { $in: dish.orders } },
-    { $pull: { dishes: dishes._id } }
-  );
+
   return res.sendStatus(200);
 }
 

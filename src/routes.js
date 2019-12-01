@@ -7,10 +7,10 @@ const authGuard = require("./middleware/authGuard");
 const adminGuard = require("./middleware/adminGuard");
 const router = express.Router();
 
-router.use("/users", authGuard, userRoute);
-//router.use("/dishes", adminGuard, dishRoute);
-router.use("/dishes", dishRoute);
-router.use("/orders", orderRoute);
+
+router.use("/users", userRoute);
+router.use("/dishes", authGuard, adminGuard, dishRoute);
+router.use("/orders", authGuard, orderRoute);
 router.use("/auth", authRoute);
 
 module.exports = router;

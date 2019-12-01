@@ -1,6 +1,6 @@
 const Order = require("../models/order");
 const User = require("../models/user");
-const Dish = require('../models/dish');
+const Dish = require("../models/dish");
 
 async function addOrder(req, res) {
   const {
@@ -30,6 +30,7 @@ async function addOrder(req, res) {
   // add the order to user
   const user = await User.findById(userId).exec();
   user.orders.addToSet(order._id);
+  await user.save();
 
   return res.json(order);
 }
@@ -37,9 +38,7 @@ async function addOrder(req, res) {
 async function getOrder(req, res) {
   const { id } = req.params;
 
-  const order = await Order.findById(id)
-    .populate("user", "firstName lastName")
-    .exec();
+  const order = await Order.findById(id).exec();
 
   if (!order) {
     return res.status(404).json("order not found");
@@ -62,7 +61,10 @@ async function updateOrder(req, res) {
     payStatus,
     receiverAddress,
     receiverName,
-    receiverPhone
+    receiverPhone,
+    userId,
+    comment,
+    dishes
   } = req.body;
 
   const newOrder = await Order.findByIdAndUpdate(
@@ -73,7 +75,10 @@ async function updateOrder(req, res) {
       payStatus,
       receiverAddress,
       receiverName,
-      receiverPhone
+      receiverPhone,
+      userId,
+      comment,
+      dishes
     },
     {
       new: true
@@ -107,52 +112,10 @@ async function deleteOrder(req, res) {
   return res.sendStatus(200);
 }
 
-// POST /api/orders/:id/orders/:dishID
-async function addDish(req, res) {
-  const { id, dishId } = req.params;
-
-  const order = await Order.findById(id).exec();
-  const dish = await Dish.findById(dishId).exec();
-  if (!order || !dish) {
-    return res.status(404).json("order or dish not found");
-  }
-  order.dishes.addToSet(dish._id);
-  dish.orders.addToSet(order._id);
-  await order.save();
-  await dish.save();
-
-  return res.json(order);
-}
-
-async function deleteDish(req, res) {
-  const { id, dishId } = req.params;
-
-  const order = await Order.findById(id).exec();
-  const dish = await Dish.findById(dishId).exec();
-  if (!order || !dish) {
-    return res.status(404).json("order or dish not found");
-  }
-  const oldDishesCount = order.dishes.length;
-  const oldOrdersCount = dish.orders.length;
-  order.dishes.pull(dish._id);
-  dish.orders.pull(order._id);
-  if (order.dishes.length === oldDishesCount) {
-    return res.status(404).json("The dish does not exist");
-  }
-  if (dish.orders.length === oldOrdersCount) {
-    return res.status(404).json("The order does not exist");
-  }
-  await order.save();
-  await dish.save();
-  return res.json(order);
-}
-
 module.exports = {
   addOrder,
   getOrder,
   getAllOrders,
   updateOrder,
-  deleteOrder,
-  addDish,
-  deleteDish
+  deleteOrder
 };

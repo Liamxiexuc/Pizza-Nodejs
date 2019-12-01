@@ -1,0 +1,1 @@
+1.if you want to create an admin account, you need to create a normal user account,then use an existing admin account to update the user's account type.

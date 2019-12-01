@@ -28,8 +28,7 @@ const schema = new mongoose.Schema({
   __v: {
     type: Number,
     select: false
-  },
-  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }]
+  }
 });
 
 const model = mongoose.model("Dish", schema);

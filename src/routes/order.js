@@ -5,17 +5,14 @@ const {
   getAllOrders,
   updateOrder,
   deleteOrder,
-  addDish,
-  deleteDish
 } = require("../controllers/order");
+const adminGuard = require("../middleware/adminGuard");
 const router = express.Router();
 
-router.get("/", getAllOrders);
+router.get("/", adminGuard, getAllOrders);
 router.get("/:id", getOrder);
 router.post("/", addOrder);
-router.put("/:id", updateOrder);
-router.delete("/:id", deleteOrder);
-router.post("/:id/dishes/:dishId", addDish);
-router.delete("/:id/dishes/:dishId", deleteDish);
+router.put("/:id", adminGuard, updateOrder);
+router.delete("/:id", adminGuard, deleteOrder);
 
 module.exports = router;
