@@ -1,17 +1,18 @@
-const express = require('express');
+const express = require("express");
 const {
-    addOrder,
-    getOrder,
-    getAllOrders,
-    updateOrder,
-    deleteOrder
-} = require('../controllers/order');
+  addOrder,
+  getOrder,
+  getAllOrders,
+  updateOrder,
+  deleteOrder,
+} = require("../controllers/order");
+const adminGuard = require("../middleware/adminGuard");
 const router = express.Router();
 
-router.get('/', getAllOrders);
-router.get('/:id', getOrder);
-router.post('/', addOrder);
-router.put('/:id', updateOrder);
-router.delete('/:id', deleteOrder);
+router.get("/", adminGuard, getAllOrders);
+router.get("/:id", getOrder);
+router.post("/", addOrder);
+router.put("/:id", adminGuard, updateOrder);
+router.delete("/:id", adminGuard, deleteOrder);
 
 module.exports = router;

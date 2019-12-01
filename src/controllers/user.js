@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const Order = require("../models/order");
+const { generateToken } = require("../utils/jwt");
+const validation = require("../middleware/validation");
 
 async function addUser(req, res) {
   const {
@@ -12,8 +14,20 @@ async function addUser(req, res) {
     gender,
     phone,
     birthDay,
-    address
+    address,
+    userType
   } = req.body;
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json("User already exist");
+  }
+  // password format validation
+  const validatePassword = validation(password);
+  if (validatePassword.error) {
+    return res.status(400).json("Invalid password format");
+  }
+
   const user = new User({
     firstName,
     lastName,
@@ -24,16 +38,22 @@ async function addUser(req, res) {
     gender,
     phone,
     birthDay,
-    address
+    address,
+    userType
   });
+
+  await user.hashPassword();
   await user.save();
-  return res.json(user);
+  const token = generateToken(user._id, user.userType);
+  return res.json({ email, token });
 }
 
 async function getUser(req, res) {
   const { id } = req.params;
 
-  const user = await User.findById(id);
+  const user = await User.findById(id)
+    .populate("orders", "orderStatus orderTotalPrice dishes")
+    .exec();
 
   if (!user) {
     return res.status(404).json("user not found");
@@ -43,7 +63,9 @@ async function getUser(req, res) {
 }
 
 async function getAllUsers(req, res) {
-  const users = await User.find();
+  const users = await User.find()
+    .populate("orders", "orderStatus orderTotalPrice dishes")
+    .exec();
   return res.json(users);
 }
 
@@ -72,9 +94,19 @@ async function updateUser(req, res) {
   );
   */
 
-  const user = await User.findById(id);
+  const user = await User.findById(id).exec();
   if (!user) {
     return res.status(404).json("user not found");
+  }
+  // email check
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json("User already exist");
+  }
+  // password format validation
+  const validatePassword = validation(password);
+  if (!validatePassword) {
+    return res.status(400).json("Invalid password format");
   }
 
   user.overwrite({
@@ -98,26 +130,42 @@ async function updateUser(req, res) {
 async function deleteUser(req, res) {
   const { id } = req.params;
 
-  const user = await User.findByIdAndDelete(id);
+  const user = await User.findByIdAndDelete(id).exec();
 
   if (!user) {
     return res.status(404).json("user not found");
   }
+  //delete all orders
+  await Order.deleteMany({ userId: user._id });
   return res.sendStatus(200);
 }
 
-// POST /api/users/:id/orders/:orderID
-async function addOrder(req, res) {
-  const { id, orderID } = req.params;
-
-  const user = await User.findById(id);
-  const order = await Order.findById(orderID);
-  if (!user || !order) {
-    return res.status(404).json("user or order not found");
+// PUT /api/users/:id/userType
+async function updateUserType(req, res) {
+  const { id } = req.params;
+  const { userType } = req.body;
+  const user = await User.findById(id).exec();
+  if (!user) {
+    return res.status(404).json("user not found");
   }
-  user.orders.addToSet(order._id);
-  await user.save();
-  return res.json(user);
+  const newUserType = await User.findByIdAndUpdate(
+    id,
+    {
+      userType
+    },
+    {
+      new: true
+    }
+  ).exec();
+
+  return res.json(newUserType);
+}
+
+//GET /api/users/:id/orders
+async function getAllOrdersByUserId(req, res) {
+  const { id: userId } = req.params;
+  const orders = await Order.find({ userId }).exec();
+  return res.json(orders);
 }
 
 module.exports = {
@@ -126,5 +174,6 @@ module.exports = {
   getAllUsers,
   updateUser,
   deleteUser,
-  addOrder
+  getAllOrdersByUserId,
+  updateUserType
 };

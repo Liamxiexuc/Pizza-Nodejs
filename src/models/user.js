@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("@hapi/joi");
+const bcrypt = require("bcrypt");
 
 const schema = new mongoose.Schema(
   {
@@ -25,17 +26,9 @@ const schema = new mongoose.Schema(
     password: {
       type: String,
       require: true,
-      validate: {
-        validator: password =>
-          !Joi.string()
-            .pattern(
-              /^(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@&%#_])[a-zA-Z0-9~!@&%#_]{8,16}$/
-            )
-            .validate(password).error,
-        msg: "Invalid password format"
-      }
-    },
-    orders: [{ type: String, ref: "Order" }],
+      },
+    
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
 
     title: {
       type: String,
@@ -57,6 +50,11 @@ const schema = new mongoose.Schema(
       type: String,
       require: true
     },
+    userType: {
+      type: String,
+      default: 1,
+      require: true
+    },
     __v: {
       type: Number,
       select: false
@@ -74,6 +72,15 @@ const schema = new mongoose.Schema(
 schema.virtual("fullname").get(function() {
   return this.firstName + this.lastName;
 });
+
+schema.methods.hashPassword = async function() {
+  this.password = await bcrypt.hash(this.password, 10);
+};
+
+schema.methods.validatePassword = async function(password) {
+  const validPassword = await bcrypt.compare(password, this.password);
+  return validPassword;
+};
 
 const model = mongoose.model("User", schema);
 
