@@ -5,7 +5,8 @@
   "main": "Index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "pm2-runtime start config/ecosystem.config.js --env production"
+    "start": "pm2-runtime start config/ecosystem.config.js --env production",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +24,7 @@
     "pm2": "^4.2.0"
   },
   "devDependencies": {
-    "nodemon": "^1.19.4"
+    "nodemon": "^1.19.4",
+    "supertest": "^4.0.2"
   }
 }

@@ -5,21 +5,20 @@ async function addDish(req, res) {
   const {
     productName,
     price,
-    productType,
     productInfo,
     photo,
     category
   } = req.body;
   // dishName check
   const existDish = await Dish.find({ productName });
-  if (existDish) {
+
+  if (existDish.length != 0) {
     return res.status(400).json("dish exist");
   }
 
   const dish = new Dish({
     productName,
     price,
-    productType,
     productInfo,
     photo,
     category
@@ -49,7 +48,6 @@ async function updateDish(req, res) {
   const {
     productName,
     price,
-    productType,
     productInfo,
     photo,
     category
@@ -60,7 +58,6 @@ async function updateDish(req, res) {
     {
       productName,
       price,
-      productType,
       productInfo,
       photo,
       category
