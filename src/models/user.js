@@ -48,7 +48,7 @@ const schema = new mongoose.Schema(
     },
     address: {
       type: String,
-      require: true
+      require: false
     },
     userType: {
       type: String,
