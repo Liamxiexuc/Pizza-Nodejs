@@ -74,9 +74,6 @@ async function updateUser(req, res) {
   const {
     firstName,
     lastName,
-    email,
-    password,
-    orders,
     title,
     gender,
     phone,
@@ -84,47 +81,20 @@ async function updateUser(req, res) {
     address
   } = req.body;
 
-  /* The method below can not do validation when update data.
   const newUser = await User.findByIdAndUpdate(
     id,
-    { firstName, lastName, email, title, gender, phone, birthDay, address },
+    { firstName, lastName, title, gender, phone, birthDay, address },
     {
-      new: true
+      new: true    // return the updated object
     }
   );
-  */
 
   const user = await User.findById(id).exec();
   if (!user) {
     return res.status(404).json("user not found");
   }
-  // email check
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json("User already exist");
-  }
-  // password format validation
-  const validatePassword = validation(password);
-  if (!validatePassword) {
-    return res.status(400).json("Invalid password format");
-  }
 
-  user.overwrite({
-    ...user,
-    firstName,
-    lastName,
-    email,
-    password,
-    orders,
-    title,
-    gender,
-    phone,
-    birthDay,
-    address
-  });
-  await user.save();
-
-  return res.json(user);
+  return res.json(newUser);
 }
 
 async function deleteUser(req, res) {
