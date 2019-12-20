@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get("/", adminGuard, getAllOrders);
 router.get("/:id", getOrder);
-router.post("/", addOrder);
+router.post("/", authGuard, addOrder);
 router.put("/:id", adminGuard, updateOrder);
 router.delete("/:id", adminGuard, deleteOrder);
 

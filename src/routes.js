@@ -9,7 +9,7 @@ const router = express.Router();
 
 
 router.use("/users", userRoute);
-router.use("/dishes", authGuard, adminGuard, dishRoute);
+router.use("/dishes", authGuard, dishRoute);
 router.use("/orders", authGuard, orderRoute);
 router.use("/auth", authRoute);
 
