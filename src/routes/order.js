@@ -7,6 +7,7 @@ const {
   deleteOrder,
 } = require("../controllers/order");
 const adminGuard = require("../middleware/adminGuard");
+const authGuard = require("../middleware/authGuard");
 const router = express.Router();
 
 router.get("/", adminGuard, getAllOrders);
