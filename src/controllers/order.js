@@ -1,9 +1,10 @@
 const Order = require("../models/order");
 const User = require("../models/user");
 const Dish = require("../models/dish");
+const mongoose = require("mongoose");
 
 async function addOrder(req, res) {
-  const {
+  let {
     orderStatus,
     orderTotalPrice,
     payStatus,
@@ -14,6 +15,23 @@ async function addOrder(req, res) {
     comment,
     dishes
   } = req.body;
+
+  // trans dishId type from string to ObjectId
+  const items = [];
+  dishes.forEach(dish => {
+    let { productName, price, quantity, dishID } = dish;
+    dishID = mongoose.Types.ObjectId(dishID);
+    const item = {
+      dishID,
+      productName,
+      price,
+      quantity
+    };
+    items.push(item);
+  });
+  dishes = items;
+  // trans userId type from string to ObjectId
+  userId = mongoose.Types.ObjectId(userId);
 
   const order = new Order({
     orderStatus,
@@ -27,8 +45,10 @@ async function addOrder(req, res) {
     dishes
   });
   await order.save();
+
   // add the order to user
   const user = await User.findById(userId).exec();
+
   user.orders.addToSet(order._id);
   await user.save();
 
@@ -66,6 +86,23 @@ async function updateOrder(req, res) {
     comment,
     dishes
   } = req.body;
+
+  // trans dishId type from string to ObjectId
+  const items = [];
+  dishes.forEach(dish => {
+    let { productName, price, quantity, dishID } = dish;
+    dishID = mongoose.Types.ObjectId(dishID);
+    const item = {
+      dishID,
+      productName,
+      price,
+      quantity
+    };
+    items.push(item);
+  });
+  dishes = items;
+  // trans userId type from string to ObjectId
+  userId = mongoose.Types.ObjectId(userId);
 
   const newOrder = await Order.findByIdAndUpdate(
     id,
